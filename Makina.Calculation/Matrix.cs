@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Makina.Calculation;
 
@@ -57,7 +56,7 @@ public readonly struct Matrix
 			v *= value;
 			v.CopyTo(result, i);
 		}
-		if(l < Length)
+		if (l < Length)
 		{
 			for (int j = i; j < Length; j++)
 				result[j] = _data[j] * value;
@@ -118,9 +117,195 @@ public readonly struct Matrix
 		return new Matrix(Rows, right.Columns, result);
 	}
 
-	public float Dot(Matrix right)
+	public Matrix Dot(Matrix right)
 	{
-		return 0;
+		var result = new float[right.Columns];
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				result[i] += _data[i * Columns + j] * right._data[j * right.Columns + i];
+			}
+		}
+		return new Matrix(1, right.Columns, result);
+	}
+
+	public Matrix Add(Matrix right)
+	{
+#if DEBUG
+		if (Columns != right.Columns || Rows != right.Rows)
+			throw new InvalidOperationException("Matricies can't be added");
+#endif
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			var v2 = new Vector<float>(right._data, i);
+			v += v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] + right._data[j];
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix Add(float right)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		var v2 = new Vector<float>(right);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			v += v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] + right;
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix AddCol(Matrix col)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		var l = Columns - (Columns % c);
+		for (int i = 0; i < Rows; i++)
+		{
+			int j;
+			var v2 = new Vector<float>(col._data[i]);
+			for (j = 0; j < l; j += c)
+			{
+				var v = new Vector<float>(_data, j);
+				v += v2;
+				v.CopyTo(result, j);
+			}
+			if (l < Columns)
+			{
+				for (int k = j; k < Columns; k++)
+					result[i * Columns + j] = _data[i * Columns + j] + col._data[i];
+			}
+		}
+
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix Subtract(Matrix right)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			var v2 = new Vector<float>(right._data, i);
+			v -= v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] - right._data[j];
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix Subtract(float right)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		var v2 = new Vector<float>(right);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			v -= v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] - right;
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix Divide(Matrix right)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			var v2 = new Vector<float>(right._data, i);
+			v /= v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] / right._data[j];
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public Matrix Divide(float right)
+	{
+		var result = new float[Length];
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		var v2 = new Vector<float>(right);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			v /= v2;
+			v.CopyTo(result, i);
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+				result[j] = _data[j] / right;
+		}
+		return new Matrix(Rows, Columns, result);
+	}
+
+	public bool Equals(Matrix right)
+	{
+		var c = Vector<float>.Count;
+		int i;
+		var l = Length - (Length % c);
+		for (i = 0; i < l; i += c)
+		{
+			var v = new Vector<float>(_data, i);
+			var v2 = new Vector<float>(right._data, i);
+			if (v != v2)
+				return false;
+		}
+		if (l < Length)
+		{
+			for (int j = i; j < Length; j++)
+			{
+				if (_data[j] != right._data[j])
+					return false;
+			}
+		}
+		return true;
 	}
 
 	public Matrix Transpose()
@@ -140,7 +325,7 @@ public readonly struct Matrix
 	{
 		var data = new float[size * size];
 		var d = 0;
-		for (int i = 0; i < data.Length; i+=size)
+		for (int i = 0; i < data.Length; i += size)
 		{
 			data[i + d++] = 1;
 		}
@@ -155,6 +340,16 @@ public readonly struct Matrix
 	public static Matrix Zeo(int rows, int columns)
 	{
 		return new Matrix(rows, columns);
+	}
+
+	private static float Sum(in float[] arr)
+	{
+		var sum = 0f;
+		for (int i = 0; i < arr.Length; i++)
+		{
+			sum += arr[i];
+		}
+		return sum;
 	}
 
 	public override string ToString()
@@ -177,15 +372,5 @@ public readonly struct Matrix
 		sb.AppendLine("}");
 
 		return sb.ToString();
-	}
-
-	private static float Sum(in float[] arr)
-	{
-		var sum = 0f;
-		for (int i = 0; i < arr.Length; i++)
-		{
-			sum += arr[i];
-		}
-		return sum;
 	}
 }

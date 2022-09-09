@@ -8,16 +8,18 @@ internal class Program
 {
 	private static void Main(string[] args)
 	{
-		var m = new Matrix(2, 4, new float[] { 3, 2, 1, 5, 9, 1, 3, 0 });
-		var m2 = new Matrix(4, 3, new float[] { 2, 9, 0, 1, 3, 5, 2, 4, 7, 8, 1, 5 });
+		var m = new Matrix(2, 2, new float[] { 1, 2, 3, 4 });
+		var m2 = new Matrix(2, 2, new float[] { 5, 6, 7, 8 });
 		Console.WriteLine(m);
 		Console.WriteLine(m2);
 
 		var sw = Stopwatch.StartNew();
-		var m3 = m2.Transpose();
+		var dot = m.Dot(m2);
+		var dot2 = m.Multiply(m2);
 		sw.Stop();
 		Console.WriteLine($"For: {sw.ElapsedMilliseconds}ms");
 		sw.Stop();
-		Console.WriteLine(m3);
+		Console.WriteLine(dot);
+		Console.WriteLine(dot2);
 	}
 }
