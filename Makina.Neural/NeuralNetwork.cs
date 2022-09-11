@@ -66,7 +66,7 @@ public class NeuralNetwork
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			var fwd = ForwardPropagation(ActivationFunction.ReLu, _x);
+			var fwd = ForwardPropagation(ActivationFunction.TanH, _x);
 			var back = BackPropagation(fwd);
 			UpdateParameters(back, learningRate);
 		}
@@ -74,6 +74,6 @@ public class NeuralNetwork
 
 	public Matrix Predict(Matrix x)
 	{
-		return ForwardPropagation(ActivationFunction.ReLu, x).A2;
+		return ForwardPropagation(ActivationFunction.TanH, x).A2;
 	}
 }
