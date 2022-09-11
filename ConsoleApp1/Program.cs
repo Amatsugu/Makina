@@ -1,4 +1,5 @@
 ﻿using Makina.Calculation;
+using Makina.Neural;
 
 using System.Diagnostics;
 
@@ -8,18 +9,20 @@ internal class Program
 {
 	private static void Main(string[] args)
 	{
-		var m = new Matrix(2, 2, new float[] { 1, 2, 3, 4 });
-		var m2 = new Matrix(2, 2, new float[] { 5, 6, 7, 8 });
-		Console.WriteLine(m);
-		Console.WriteLine(m2);
+		var n = 50000;
+		var data = Enumerable.Range(1, n);
+		var result = data.Select(d => d /2f == ( d/2 ) ? 1 : 0);
+		var x = new Matrix(1, n, data.Select(n => n * 1f).ToArray());
+		var y = new Matrix(1, n, result.Select(n => n * 1f).ToArray());
 
-		var sw = Stopwatch.StartNew();
-		var dot = m.Dot(m2);
-		var dot2 = m.Multiply(m2);
-		sw.Stop();
-		Console.WriteLine($"For: {sw.ElapsedMilliseconds}ms");
-		sw.Stop();
-		Console.WriteLine(dot);
-		Console.WriteLine(dot2);
+		var r = Enumerable.Range(1, 10);
+		var p = new Matrix(1, 10, r.Select(n => n * 1f).ToArray());
+		var net = new NeuralNetwork(x, y, 3);
+
+		net.Train(100);
+		Console.WriteLine(net.Predict(p));
 	}
+
+
+
 }
