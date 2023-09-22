@@ -42,7 +42,7 @@ public readonly struct Matrix
 	{
 		get
 		{
-			return _data[row * columns + columns];
+			return _data[row * columns + column];
 		}
 	}
 
